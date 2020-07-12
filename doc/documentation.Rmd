@@ -1,0 +1,55 @@
+---
+title: "Documentation"
+output: html_notebook
+---
+
+# Procedure 
+
+# Data 
+
+[Suspension data from the 2018-2019 school year](https://www.cde.ca.gov/ds/sd/sd/filessd.asp)
+
+[File structure](https://www.cde.ca.gov/ds/sd/sd/fssd.asp)
+
+In the raw dataset, each row is a unique combination of: 
+
+ - Count code 
+ - District code 
+ - School code 
+ - Aggregate level, 
+ - Reporting category 
+ - Charter status 
+ 
+There is an "*" in 1194039 fields, affecting 108549 rows. 
+
+The documentation in the Calfironia Department of Education website explains this: 
+
+>Note: An asterisk (*) appearing in a data field is used to protect student privacy. 
+
+Counties, districts, and schools that have asterisks in the numeric fields do not report any kind of enrollment counts. 
+
+If you want to look at these missing values closer, use this: 
+
+```{r}
+problems(raw_sus)
+
+probs <- problems(raw_sus)
+
+probs %>% count(row) %>% count(n)
+
+probs %>% count(expected)
+
+probs %>% count(actual)
+
+prob_rows <- probs %>% distinct(row)
+
+prob_records <- raw_sus %>% filter(row_number() %in% prob_rows$row)
+
+raw_sus %>% filter(row_number() %in% prob_rows$row) %>% count(AggregateLevel)
+
+raw_sus %>% filter(row_number() %in% prob_rows$row) %>% count(ReportingCategory)
+```
+
+# Clean 
+
+I wanted to clean the dataset so each record was a unique school, but there are many schools that have a school code of "0000000" or "0000001". So I need to clean the data so each record is a unique district code and school code. 
