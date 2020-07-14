@@ -4,6 +4,36 @@ output: html_notebook
 ---
 
 ```{r load raw data}
-src(here::here("src", "load data"))
+source(here::here("src", "clean_data.R"))
+```
+
+Suspension counts are unduplicated counts of students suspended. This means that if a student got supsended three times, they would only be counted once in the dataset. 
+
+```{r}
+total_sus <- school_sus %>% 
+  filter(reporting_category == "Total")   # Total counts across all subgroups
+```
+
+```{r}
+ggplot(data = total_sus, 
+       aes(x = cumulative_enrollment, 
+           y= unduplicated_count_of_students_suspended_total)) +
+  geom_point(alpha = .5) +
+  geom_smooth(method = "lm") + 
+  labs(y = "Students suspended")
+```
+
+```{r}
+fit <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment, 
+          data = total_sus)
+
+summary(fit)
+```
+
+
+# About the Outliers
+
+```{r}
+
 ```
 

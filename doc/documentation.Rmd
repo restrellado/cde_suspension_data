@@ -53,3 +53,5 @@ raw_sus %>% filter(row_number() %in% prob_rows$row) %>% count(ReportingCategory)
 # Clean 
 
 I wanted to clean the dataset so each record was a unique school, but there are many schools that have a school code of "0000000" or "0000001". So I need to clean the data so each record is a unique district code and school code. 
+
+I selected only records with the aggregate level of schools. This makes each row in the filtered dataset a unique combination of district code, school code, and reporting category. Filtering this way drops 197,670 observations from the raw dataset. 
