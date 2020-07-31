@@ -7,13 +7,15 @@ output: html_notebook
 
 # Data 
 
+## Suspensions 
+
 [Suspension data from the 2018-2019 school year](https://www.cde.ca.gov/ds/sd/sd/filessd.asp)
 
 [File structure](https://www.cde.ca.gov/ds/sd/sd/fssd.asp)
 
 In the raw dataset, each row is a unique combination of: 
 
- - Count code 
+ - County code 
  - District code 
  - School code 
  - Aggregate level, 
@@ -22,7 +24,7 @@ In the raw dataset, each row is a unique combination of:
  
 There is an "*" in 1194039 fields, affecting 108549 rows. 
 
-The documentation in the Calfironia Department of Education website explains this: 
+The documentation in the California Department of Education website explains this: 
 
 >Note: An asterisk (*) appearing in a data field is used to protect student privacy. 
 
@@ -30,7 +32,7 @@ Counties, districts, and schools that have asterisks in the numeric fields do no
 
 If you want to look at these missing values closer, use this: 
 
-```{r}
+```{r explore missing values}
 problems(raw_sus)
 
 probs <- problems(raw_sus)
@@ -50,8 +52,24 @@ raw_sus %>% filter(row_number() %in% prob_rows$row) %>% count(AggregateLevel)
 raw_sus %>% filter(row_number() %in% prob_rows$row) %>% count(ReportingCategory)
 ```
 
+## District and School Database
+
+I joined the suspension dataset with this California school database to get additional variables. The variable I'm most interested in is the grade level. 
+
+[Download the file here](https://www.cde.ca.gov/ds/si/ds/pubschls.asp)
+
+[File structure](https://www.cde.ca.gov/ds/si/ds/fspubschls.asp)
+
+This file had one duplicate row. I think it's just a duplicate entry, since the only difference between the two observations is the administrator and email address. They appear to be the same school. 
+
 # Clean 
 
 I wanted to clean the dataset so each record was a unique school, but there are many schools that have a school code of "0000000" or "0000001". So I need to clean the data so each record is a unique district code and school code. 
 
 I selected only records with the aggregate level of schools. This makes each row in the filtered dataset a unique combination of district code, school code, and reporting category. Filtering this way drops 197,670 observations from the raw dataset. 
+
+In the cleaned dataset "total_sus," there are still 285 NAs. These all had "*" as values of "total_enrollment" in the raw dataset. To explore this further, please see "explore_nas.R" int he "ext" folder. 
+
+# Questions 
+
+Can we fit a better model if we knew which schools were elementary, middle, and high school? One assumption is that there are more suspensions at the high school level than there are at teh elementary level, so it may be useful to control for this variable in a model. 

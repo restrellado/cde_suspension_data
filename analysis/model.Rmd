@@ -3,37 +3,62 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+# Load data 
+
 ```{r load raw data}
 source(here::here("src", "clean_data.R"))
 ```
 
+# Clean data
+
 Suspension counts are unduplicated counts of students suspended. This means that if a student got supsended three times, they would only be counted once in the dataset. 
 
-```{r}
+```{r filter total}
+# Cleaning drops 344, 909 rows 
 total_sus <- school_sus %>% 
-  filter(reporting_category == "Total")   # Total counts across all subgroups
+  filter(
+    # Total counts across all subgroups 
+    reporting_category == "Total", 
+    # Drop rows where enrollment is not reported because of small n size
+    !is.na(cumulative_enrollment)) 
 ```
 
+# Join suspension data set with school database 
+
+How many school codes in the schools database are in the suspension dataset?
+
 ```{r}
+table(raw_schools$school_code %in% total_sus$school_code)
+```
+
+TODO: Clean dataset at the district level. Create a 14 digit CDS code in the suspension dataset. Join and verify data. 
+
+```{r}
+test <- left_join(school_sus, raw_schools)
+```
+
+# Exploratory Data Analysis 
+
+Plot student enrollment vs students suspended at least once. 
+
+```{r plot student enrollment and students suspended}
 ggplot(data = total_sus, 
        aes(x = cumulative_enrollment, 
-           y= unduplicated_count_of_students_suspended_total)) +
+           y = unduplicated_count_of_students_suspended_total)) +
   geom_point(alpha = .5) +
   geom_smooth(method = "lm") + 
   labs(y = "Students suspended")
 ```
 
-```{r}
+```{r fit model 1}
 fit <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment, 
           data = total_sus)
 
 summary(fit)
 ```
 
-
 # About the Outliers
 
 ```{r}
 
 ```
-

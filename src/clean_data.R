@@ -11,6 +11,7 @@ library(janitor)
 source(here::here("src", "load_data.R"))
 
 
+# SUSPENSION DATA ---------------------------------------------------------
 
 # Aggregate level ---------------------------------------------------------
 
@@ -54,3 +55,17 @@ school_sus <- school_sus %>%
 
 school_sus <- school_sus %>% 
   clean_names()
+
+
+# SCHOOL DATABASE ---------------------------------------------------------
+
+# Remove one duplicate row
+# Drops one record
+raw_schools <- raw_schools %>% 
+  filter(!duplicated(CDSCode))
+
+# Clean var names
+raw_schools <- raw_schools %>% 
+  clean_names() 
+
+raw_schools$school_code <- str_sub(raw_schools$cds_code, 8)
