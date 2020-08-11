@@ -62,6 +62,12 @@ I joined the suspension dataset with this California school database to get addi
 
 This file had one duplicate row. I think it's just a duplicate entry, since the only difference between the two observations is the administrator and email address. They appear to be the same school. 
 
+About 2 percent of the records in the total suspension dataset don't have a match in the California school database. 234 of the 252 of the non-matching records have a school code of "0000001". 
+
+The Illuminate website explains that the 000001 school code could be a "dummy code" set up by CDE to facilitate enrollment in Non Public Schools. 
+
+>Districts usually set up a dummy site in Illuminate, usually called "NPS School,"  (can >be named whatever they like). The dummy site's CDS code must end in 0000001. This is the >state's rule for identifying NPS in CALPADS.
+
 # Clean 
 
 I wanted to clean the dataset so each record was a unique school, but there are many schools that have a school code of "0000000" or "0000001". So I need to clean the data so each record is a unique district code and school code. 

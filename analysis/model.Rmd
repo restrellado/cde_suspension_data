@@ -14,7 +14,7 @@ source(here::here("src", "clean_data.R"))
 Suspension counts are unduplicated counts of students suspended. This means that if a student got supsended three times, they would only be counted once in the dataset. 
 
 ```{r filter total}
-# Cleaning drops 344, 909 rows 
+# Cleaning drops 344,909 rows 
 total_sus <- school_sus %>% 
   filter(
     # Total counts across all subgroups 
@@ -23,19 +23,37 @@ total_sus <- school_sus %>%
     !is.na(cumulative_enrollment)) 
 ```
 
+```{r make 14 digit code}
+total_sus <- total_sus %>% 
+  mutate(cds_code = paste0(county_code, district_code, school_code))
+```
+
 # Join suspension data set with school database 
 
-How many school codes in the schools database are in the suspension dataset?
-
 ```{r}
-table(raw_schools$school_code %in% total_sus$school_code)
+# Pick columns 
+raw_schools <- raw_schools %>%  
+  select(cds_code, status_type, charter, funding_type, doc_type, soc_type)
 ```
 
-TODO: Clean dataset at the district level. Create a 14 digit CDS code in the suspension dataset. Join and verify data. 
+About 2 percent of the records in the total suspension dataset don't have a match in the California school database. 234 of the 252 of the non-matching records have a school code of "0000001". 
 
 ```{r}
-test <- left_join(school_sus, raw_schools)
+# Compare to 6396 FALSE and 11728 TRUE
+table(total_sus$cds_code %in% raw_schools$cds_code)
+prop.table(table(total_sus$cds_code %in% raw_schools$cds_code))
 ```
+
+```{r}
+total_sus$match_status <- total_sus$cds_code %in% raw_schools$cds_code
+```
+
+```{r}
+total_sus <- left_join(total_sus, raw_schools, by = "cds_code")
+```
+
+TODO: Explore and validate total_sus
+
 
 # Exploratory Data Analysis 
 
