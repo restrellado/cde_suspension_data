@@ -9,16 +9,22 @@ output: html_notebook
 source(here::here("src", "clean_data.R"))
 ```
 
+```{r race groups}
+race_groups <- c("African American", "American Indian or Alaska Native", "Asian",
+                 "Filipino", "Hispanic or Latino", "Pacific Islander", 
+                 "Two or More Races", "White")
+```
+
 # Clean data
 
-Suspension counts are unduplicated counts of students suspended. This means that if a student got supsended three times, they would only be counted once in the dataset. 
+Suspension counts are unduplicated counts of students suspended. This means that if a student got suspended three times, they would only be counted once in the dataset. We'll be comparing racial subgroups so we'll drop all levels of `reporting_category` except the racial subgroups. 
 
 ```{r filter total}
-# Cleaning drops 344,909 rows 
+# Cleaning drops 118362 rows 
 total_sus <- school_sus %>% 
   filter(
-    # Total counts across all subgroups 
-    reporting_category == "Total", 
+    # Total counts for racial subgroups
+    reporting_category %in% race_groups, 
     # Drop rows where enrollment is not reported because of small n size
     !is.na(cumulative_enrollment)) 
 ```
@@ -52,7 +58,12 @@ total_sus$match_status <- total_sus$cds_code %in% raw_schools$cds_code
 total_sus <- left_join(total_sus, raw_schools, by = "cds_code")
 ```
 
-TODO: Explore and validate total_sus
+Each row in this dataset is a unique cds code and reporting category. There must be some duplicate school codes. 
+
+```{r}
+total_sus %>% 
+  distinct(cds_code, reporting_category)
+```
 
 
 # Exploratory Data Analysis 
@@ -62,17 +73,32 @@ Plot student enrollment vs students suspended at least once.
 ```{r plot student enrollment and students suspended}
 ggplot(data = total_sus, 
        aes(x = cumulative_enrollment, 
-           y = unduplicated_count_of_students_suspended_total)) +
+           y = unduplicated_count_of_students_suspended_total, 
+           color = reporting_category)) +
   geom_point(alpha = .5) +
   geom_smooth(method = "lm") + 
   labs(y = "Students suspended")
 ```
 
 ```{r fit model 1}
-fit <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment, 
+fit_1 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment, 
           data = total_sus)
 
-summary(fit)
+summary(fit_1)
+```
+
+```{r fit model 2}
+fit_2 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment + reporting_category, 
+          data = total_sus)
+
+summary(fit_2)
+```
+
+```{r fit model 3}
+fit_3 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment + reporting_category + soc_type, 
+          data = total_sus)
+
+summary(fit_3)
 ```
 
 # About the Outliers
