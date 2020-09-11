@@ -78,4 +78,4 @@ In the cleaned dataset "total_sus," there are still 285 NAs. These all had "*" a
 
 # Questions 
 
-Can we fit a better model if we knew which schools were elementary, middle, and high school? One assumption is that there are more suspensions at the high school level than there are at teh elementary level, so it may be useful to control for this variable in a model. 
+Can we fit a better model if we knew which schools were elementary, middle, and high school? One assumption is that there are more suspensions at the high school level than there are at the elementary level, so it may be useful to control for this variable in a model. 

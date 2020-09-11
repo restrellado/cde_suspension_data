@@ -36,33 +36,36 @@ total_sus <- total_sus %>%
 
 # Join suspension data set with school database 
 
-```{r}
+```{r pick columns}
 # Pick columns 
 raw_schools <- raw_schools %>%  
   select(cds_code, status_type, charter, funding_type, doc_type, soc_type)
 ```
 
-About 2 percent of the records in the total suspension dataset don't have a match in the California school database. 234 of the 252 of the non-matching records have a school code of "0000001". 
+Less than 1 percent of the records in the total suspension dataset don't have a match in the California school database. 292 of the 347 of the non-matching records have a school code of "0000001". This might be because these were "dummy" school codes in the student systems used for non public schools. See documentation for more information.  
 
-```{r}
+```{r look at non-matches}
 # Compare to 6396 FALSE and 11728 TRUE
 table(total_sus$cds_code %in% raw_schools$cds_code)
 prop.table(table(total_sus$cds_code %in% raw_schools$cds_code))
 ```
 
-```{r}
+```{r make a non-match status column}
 total_sus$match_status <- total_sus$cds_code %in% raw_schools$cds_code
 ```
 
-```{r}
+```{r join suspensions and school names}
 total_sus <- left_join(total_sus, raw_schools, by = "cds_code")
 ```
 
-Each row in this dataset is a unique cds code and reporting category. There must be some duplicate school codes. 
+Each row in this dataset is a unique cds code and reporting category. 
 
-```{r}
+```{r uniqueness}
 total_sus %>% 
   distinct(cds_code, reporting_category)
+```
+```{r convert racial subgroup to factor}
+
 ```
 
 
@@ -80,12 +83,18 @@ ggplot(data = total_sus,
   labs(y = "Students suspended")
 ```
 
+Model 1: Cumulative enrollment on number of students suspended at least once. 
+
 ```{r fit model 1}
 fit_1 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment, 
           data = total_sus)
 
 summary(fit_1)
 ```
+
+On average, this model estimates that for every 100 students, about 3 students are suspended at least once. 
+
+Model 2: cumulative enrollment on number of students suspended at least once, controlling for racial subgroup. 
 
 ```{r fit model 2}
 fit_2 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment + reporting_category, 
