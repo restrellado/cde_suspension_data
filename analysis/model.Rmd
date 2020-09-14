@@ -64,8 +64,27 @@ Each row in this dataset is a unique cds code and reporting category.
 total_sus %>% 
   distinct(cds_code, reporting_category)
 ```
-```{r convert racial subgroup to factor}
+```{r total enrollment by racial subgroup}
+total_sus %>% 
+  group_by(reporting_category) %>% 
+  summarise(total_enroll = sum(cumulative_enrollment)) %>% 
+  ungroup() %>% 
+  mutate(perc = total_enroll / sum(total_enroll)) %>% 
+  arrange(desc(total_enroll))
+```
 
+```{r convert racial subgroup to factor}
+total_sus <- total_sus %>% 
+  mutate(reporting_category = fct_relevel(reporting_category, "Hispanic or Latino"))
+```
+
+```{r convert school type to factor}
+total_sus <- total_sus %>% 
+  mutate(soc_type = fct_relevel(soc_type, 
+                                "K-12 Schools (Public)", 
+                                "Elementary Schools (Public)", 
+                                "Junior High Schools (Public)", 
+                                "High Schools (Public)"))
 ```
 
 
@@ -83,32 +102,30 @@ ggplot(data = total_sus,
   labs(y = "Students suspended")
 ```
 
-Model 1: Cumulative enrollment on number of students suspended at least once. 
 
-```{r fit model 1}
-fit_1 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment, 
-          data = total_sus)
+# Models
 
-summary(fit_1)
+From the CDE documentation of the suspension datasets: 
+
+> The unduplicated count of students suspended divided by the cumulative enrollment at the selected entity for the selected student population.
+
+## Model 1: reporting category on suspension rate
+
+```{r model 1}
+m1 <- lm(suspension_rate_total ~ reporting_category, data = total_sus)
+summary(m1)
 ```
 
-On average, this model estimates that for every 100 students, about 3 students are suspended at least once. 
+The model suggests that on average, the suspension rate for Hispanic students is about 3 percent. The suspension rate for Black students on average is about 4 percent and the suspension rate for Native American students on average is about 4 percent. 
 
-Model 2: cumulative enrollment on number of students suspended at least once, controlling for racial subgroup. 
+## Model 2: reporting category on suspension rate controlling for school type
 
-```{r fit model 2}
-fit_2 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment + reporting_category, 
-          data = total_sus)
-
-summary(fit_2)
+```{r model 2}
+m2 <- lm(suspension_rate_total ~ reporting_category + soc_type, data = total_sus)
+summary(m2)
 ```
 
-```{r fit model 3}
-fit_3 <- lm(unduplicated_count_of_students_suspended_total ~ cumulative_enrollment + reporting_category + soc_type, 
-          data = total_sus)
-
-summary(fit_3)
-```
+On average, this model suggests that the suspension rate for Hispanic students is about 1 percent for K-12 public schools and that suspension rates for Black students are about 4 percent higher than that at K-12 public schools. On average, you'd add about 7 percent to the rate for junior high and about 3 percent to the rate for high school, holding racial subgroup constant. 
 
 # About the Outliers
 
