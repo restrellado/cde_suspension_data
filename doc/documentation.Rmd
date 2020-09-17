@@ -7,6 +7,8 @@ output: html_notebook
 
 # Data 
 
+Train the model on 17-18 data and test it on 18-19
+
 ## Suspensions 
 
 [Suspension data from the 2018-2019 school year](https://www.cde.ca.gov/ds/sd/sd/filessd.asp)
@@ -18,7 +20,7 @@ In the raw dataset, each row is a unique combination of:
  - County code 
  - District code 
  - School code 
- - Aggregate level, 
+ - Aggregate level 
  - Reporting category 
  - Charter status 
  

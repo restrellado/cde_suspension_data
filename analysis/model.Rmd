@@ -127,8 +127,18 @@ summary(m2)
 
 On average, this model suggests that the suspension rate for Hispanic students is about 1 percent for K-12 public schools and that suspension rates for Black students are about 4 percent higher than that at K-12 public schools. On average, you'd add about 7 percent to the rate for junior high and about 3 percent to the rate for high school, holding racial subgroup constant. 
 
+## Model 3: reporting category on suspension rate controlling for cumulative_enrollment, and school type
+
+```{r model 3}
+m3 <- lm(suspension_rate_total ~ reporting_category + cumulative_enrollment + soc_type, data = total_sus)
+summary(m3)
+```
+
+# Compare Models 
+
+```{r aic}
+AIC(m1, m2, m3)
+```
+
 # About the Outliers
 
-```{r}
-
-```
