@@ -3,10 +3,14 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+```{r}
+#TODO Review and update based on 17-18 data
+```
+
 # Load data 
 
 ```{r load raw data}
-source(here::here("src", "clean_data.R"))
+source(here::here("src", "2017_2018_clean_data.R"))
 ```
 
 ```{r race groups}
@@ -21,7 +25,7 @@ Suspension counts are unduplicated counts of students suspended. This means that
 
 ```{r filter total}
 # Cleaning drops 118362 rows 
-total_sus <- school_sus %>% 
+total_sus <- school_sus1718 %>% 
   filter(
     # Total counts for racial subgroups
     reporting_category %in% race_groups, 
@@ -38,7 +42,7 @@ total_sus <- total_sus %>%
 
 ```{r pick columns}
 # Pick columns 
-raw_schools <- raw_schools %>%  
+raw_schools1617 <- raw_schools1617 %>%  
   select(cds_code, status_type, charter, funding_type, doc_type, soc_type)
 ```
 
@@ -46,16 +50,16 @@ Less than 1 percent of the records in the total suspension dataset don't have a 
 
 ```{r look at non-matches}
 # Compare to 6396 FALSE and 11728 TRUE
-table(total_sus$cds_code %in% raw_schools$cds_code)
-prop.table(table(total_sus$cds_code %in% raw_schools$cds_code))
+table(total_sus$cds_code %in% raw_schools1617$cds_code)
+prop.table(table(total_sus$cds_code %in% raw_schools1617$cds_code))
 ```
 
 ```{r make a non-match status column}
-total_sus$match_status <- total_sus$cds_code %in% raw_schools$cds_code
+total_sus$match_status <- total_sus$cds_code %in% raw_schools1617$cds_code
 ```
 
 ```{r join suspensions and school names}
-total_sus <- left_join(total_sus, raw_schools, by = "cds_code")
+total_sus <- left_join(total_sus, raw_schools1617, by = "cds_code")
 ```
 
 Each row in this dataset is a unique cds code and reporting category. 
