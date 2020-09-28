@@ -3,10 +3,6 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-```{r}
-#TODO Review and update based on 17-18 data
-```
-
 # Load data 
 
 ```{r load raw data}
@@ -24,7 +20,7 @@ race_groups <- c("African American", "American Indian or Alaska Native", "Asian"
 Suspension counts are unduplicated counts of students suspended. This means that if a student got suspended three times, they would only be counted once in the dataset. We'll be comparing racial subgroups so we'll drop all levels of `reporting_category` except the racial subgroups. 
 
 ```{r filter total}
-# Cleaning drops 118362 rows 
+# Cleaning drops 118356 rows 
 total_sus <- school_sus1718 %>% 
   filter(
     # Total counts for racial subgroups
@@ -49,7 +45,7 @@ raw_schools1617 <- raw_schools1617 %>%
 Less than 1 percent of the records in the total suspension dataset don't have a match in the California school database. 292 of the 347 of the non-matching records have a school code of "0000001". This might be because these were "dummy" school codes in the student systems used for non public schools. See documentation for more information.  
 
 ```{r look at non-matches}
-# Compare to 6396 FALSE and 11728 TRUE
+# Compare to 360 FALSE and 38953 TRUE
 table(total_sus$cds_code %in% raw_schools1617$cds_code)
 prop.table(table(total_sus$cds_code %in% raw_schools1617$cds_code))
 ```
@@ -120,7 +116,7 @@ m1 <- lm(suspension_rate_total ~ reporting_category, data = total_sus)
 summary(m1)
 ```
 
-The model suggests that on average, the suspension rate for Hispanic students is about 3 percent. The suspension rate for Black students on average is about 4 percent and the suspension rate for Native American students on average is about 4 percent. 
+The model suggests that on average, the suspension rate for Hispanic students is about 3 percent. The suspension rate for Black students on average is about 4 percent more than Hispanic students and the suspension rate for Native American students on average is about 4 percent more. 
 
 ## Model 2: reporting category on suspension rate controlling for school type
 
@@ -131,18 +127,27 @@ summary(m2)
 
 On average, this model suggests that the suspension rate for Hispanic students is about 1 percent for K-12 public schools and that suspension rates for Black students are about 4 percent higher than that at K-12 public schools. On average, you'd add about 7 percent to the rate for junior high and about 3 percent to the rate for high school, holding racial subgroup constant. 
 
-## Model 3: reporting category on suspension rate controlling for cumulative_enrollment, and school type
+## Model 3: reporting category on suspension rate controlling for cumulative_enrollment and school type
 
 ```{r model 3}
 m3 <- lm(suspension_rate_total ~ reporting_category + cumulative_enrollment + soc_type, data = total_sus)
 summary(m3)
 ```
 
+In this model, Hispanic students in K-12 schools would have an average rate of about 2 percent, minus .06 percent for every 100 students enrolled on average. African American students on average had a suspsension rate that was about 4 percent higher than Hispanics and Native American students had a suspension rate that was about 3 percent higher. 
+
 # Compare Models 
 
 ```{r aic}
-AIC(m1, m2, m3)
+AIC(m1, m2, m3) %>% 
+  mutate(diff = AIC - lag(AIC))
 ```
+M3 has a much smaller AIC score, suggesting it's a more complete model than the other two even when considering the number of predictors. 
 
-# About the Outliers
+In addition the F-statistic in all models is larger than the p-value, which suggest that the models with predictors are a better fit than the intercept alone. This was true for all three models. 
+
+# Plot Residuals 
+
+
+
 
