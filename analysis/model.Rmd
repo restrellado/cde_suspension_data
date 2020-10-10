@@ -116,7 +116,7 @@ m1 <- lm(suspension_rate_total ~ reporting_category, data = total_sus)
 summary(m1)
 ```
 
-The model suggests that on average, the suspension rate for Hispanic students is about 3 percent. The suspension rate for Black students on average is about 4 percent more than Hispanic students and the suspension rate for Native American students on average is about 4 percent more. 
+The model suggests that on average, the suspension rate for Hispanic students in California schools is about 3 percent. The suspension rate for Black students on average is about 4 percent more than Hispanic students and the suspension rate for Native American students on average is about 4 percent more. 
 
 ## Model 2: reporting category on suspension rate controlling for school type
 
@@ -148,6 +148,38 @@ In addition the F-statistic in all models is larger than the p-value, which sugg
 
 # Plot Residuals 
 
+Model 1
 
+```{r fitted dataset}
+total_sus$m1_fitted <- fitted(m1)
+# There are missing soc_type values
+total_sus$m2_fitted[!is.na(total_sus$soc_type)] <- fitted(m2)
+total_sus$m3_fitted[!is.na(total_sus$soc_type)] <- fitted(m3)
+```
 
+Model 2
 
+```{r residual dataset}
+total_sus$m1_resid <- resid(m1)
+# There are missing soc_type values
+total_sus$m2_resid[!is.na(total_sus$soc_type)] <- resid(m2)
+total_sus$m3_resid[!is.na(total_sus$soc_type)] <- resid(m3)
+```
+
+```{r m1 residuals}
+ggplot(data = total_sus, aes(x = m1_fitted, y = m1_resid)) + 
+  geom_point(alpha = .50) +
+  geom_smooth()
+```
+
+```{r m2 residuals}
+ggplot(data = total_sus, aes(x = m2_fitted, y = m2_resid)) + 
+  geom_point(alpha = .50) +
+  geom_smooth()
+```
+
+```{r m3 residuals}
+ggplot(data = total_sus, aes(x = m3_fitted, y = m3_resid)) + 
+  geom_point(alpha = .50) +
+  geom_smooth()
+```
